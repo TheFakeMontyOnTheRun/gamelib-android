@@ -156,7 +156,7 @@ public class GameView extends View implements Updatable {
 		if (defaultRenderingNode == null) {
 
 			defaultRenderingNode = new SolidSquareRenderingNode(
-					Rect.makeRectWith(100, 100, 200, 200), new Color(255, 255,
+					new Rect(100, 100, 200, 200), new Color(255, 255,
 							0));
 		}
 		gameRenderer.renderNode(defaultRenderingNode);

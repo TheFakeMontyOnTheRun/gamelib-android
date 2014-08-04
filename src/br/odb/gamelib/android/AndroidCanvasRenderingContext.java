@@ -71,7 +71,7 @@ public class AndroidCanvasRenderingContext extends RenderingContext {
 			String style, HashMap<String, Gradient> gradients) {
 		
 
-		Vec2 origin = bounds.getP0().add(this.currentOrigin);
+		Vec2 origin = bounds.p0.add(this.currentOrigin);
 		paint.setColor(0xFF0000FF);
 		paint.setAlpha((int) (currentAlpha * 255));
 		paint.setStyle(Paint.Style.FILL_AND_STROKE);
@@ -138,11 +138,14 @@ public class AndroidCanvasRenderingContext extends RenderingContext {
 					"stop-color", "stop-opacity");
 
 			if (pol.color != null) {
-				// paint.setAlpha( pol.color.getA() );
-				color1.setA((int) ((color1.getA() / 255.0f)
-						* (pol.color.getA() / 255.0f) * 255));
-				color2.setA((int) ((color2.getA() / 255.0f)
-						* (pol.color.getA() / 255.0f) * 255));
+			
+				
+				color1.a= 	((int) (
+						(color1.a / 255.0f)					
+						* (pol.color.a / 255.0f) * 255)						
+						);
+				color2.a = ((int) ((color2.a / 255.0f)
+						* (pol.color.a / 255.0f) * 255));
 			}
 
 			LinearGradient lg = new LinearGradient(g0.x1 * scale,
@@ -156,7 +159,7 @@ public class AndroidCanvasRenderingContext extends RenderingContext {
 
 			paint.setColor((int) pol.color.getARGBColor());
 
-			paint.setAlpha((int) (pol.color.getA() *  currentAlpha ) );
+			paint.setAlpha((int) (pol.color.a *  currentAlpha ) );
 //			paint.setAlpha((int) (pol.color.getA()));			
 		} else
 			paint.setColor(0xFF000000);

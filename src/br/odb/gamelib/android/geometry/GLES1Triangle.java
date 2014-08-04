@@ -245,10 +245,10 @@ public class GLES1Triangle extends GeneralTriangle implements GLESIndexedSetFace
 	 */
 	@Override
 	public void setColor( Color c) {
-		this.color[0] = c.getA();
-		this.color[1] = c.getR();
-		this.color[2] = c.getG();
-		this.color[3] = c.getB();
+		this.color[0] = c.a;
+		this.color[1] = c.r;
+		this.color[2] = c.g;
+		this.color[3] = c.b;
 
 		
 		for ( int d = 0; d < colorBits.length; ++d ) {

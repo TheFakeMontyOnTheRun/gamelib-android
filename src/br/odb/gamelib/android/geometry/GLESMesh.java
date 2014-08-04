@@ -30,10 +30,10 @@ public class GLESMesh extends Mesh {
 						color = face.getColor();
 						Log.d("bzk3", "munhecando um triangulo. t=" + t
 								+ " face=" + face + " color=" + color);
-						t.r = color.getR();
-						t.g = color.getG();
-						t.b = color.getB();
-						t.a = color.getA();
+						t.r = color.r;
+						t.g = color.g;
+						t.b = color.b;
+						t.a = color.a;
 						v = face.getVertex(face.getIndex(0));
 						t.x0 = v.x;
 						t.y0 = v.y;
@@ -75,10 +75,10 @@ public class GLESMesh extends Mesh {
 						s.vertices[11] = v.z;
 
 						color = face.getColor();
-						s.color[0] = color.getR() / 255.0f;
-						s.color[1] = color.getG() / 255.0f;
-						s.color[2] = color.getB() / 255.0f;
-						s.color[3] = color.getA() / 255.0f;
+						s.color[0] = color.r / 255.0f;
+						s.color[1] = color.g / 255.0f;
+						s.color[2] = color.b / 255.0f;
+						s.color[3] = color.a / 255.0f;
 						
 						for ( int d = 0; d < s.color.length; ++d ) {
 							s.colorBits[ d ] = Float.floatToRawIntBits( s.color[ d ] );

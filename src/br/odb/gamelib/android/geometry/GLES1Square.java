@@ -208,10 +208,10 @@ public class GLES1Square implements AbstractSquare, GLESIndexedSetFace {
 
 	@Override
 	public void setColor( Color c) {
-		this.color[0] = c.getA();
-		this.color[1] = c.getR();
-		this.color[2] = c.getG();
-		this.color[3] = c.getB();
+		this.color[0] = c.a;
+		this.color[1] = c.r;
+		this.color[2] = c.g;
+		this.color[3] = c.b;
 		
 		for ( int d = 0; d < color.length; ++d ) {
 			colorBits[ d ] = Float.floatToRawIntBits( color[ d ] );
@@ -287,9 +287,9 @@ public class GLES1Square implements AbstractSquare, GLESIndexedSetFace {
 //		float G = Math.max( Utils.clamp( ( baseColor.getG() + candelas ), 0.0f, 254.0f ) * normalizer, color[ 1 ] ) ;
 //		float B = Math.max( Utils.clamp( ( baseColor.getB() + candelas ), 0.0f, 254.0f ) * normalizer, color[ 2 ] ) ;
 
-		float R = Utils.clamp( ( baseColor.getR() + candelas ), 0.0f, 255.0f ) * normalizer ;
-		float G = Utils.clamp( ( baseColor.getG() + candelas ), 0.0f, 255.0f ) * normalizer ;
-		float B = Utils.clamp( ( baseColor.getB() + candelas ), 0.0f, 255.0f ) * normalizer ;		
+		float R = Utils.clamp( ( baseColor.r + candelas ), 0.0f, 255.0f ) * normalizer ;
+		float G = Utils.clamp( ( baseColor.g + candelas ), 0.0f, 255.0f ) * normalizer ;
+		float B = Utils.clamp( ( baseColor.b + candelas ), 0.0f, 255.0f ) * normalizer ;		
 		
 		color[0] = R;
 		color[1] = G;

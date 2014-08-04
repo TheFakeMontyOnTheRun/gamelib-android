@@ -40,10 +40,10 @@ public class GLES1TriangleFactory implements AbstractTriangleFactory {
 			lightFactor = 0.8f + ( normal.dotProduct( lightDirection.normalized() ) * 0.2f );
 		}
 		
-		toReturn.r = c.getR() * lightFactor;
-		toReturn.g = c.getG() * lightFactor;
-		toReturn.b = c.getB() * lightFactor;
-		toReturn.a = c.getA() * lightFactor;
+		toReturn.r = c.r * lightFactor;
+		toReturn.g = c.g * lightFactor;
+		toReturn.b = c.b * lightFactor;
+		toReturn.a = c.a * lightFactor;
 
 		toReturn.flushToGLES();
 		return toReturn;
