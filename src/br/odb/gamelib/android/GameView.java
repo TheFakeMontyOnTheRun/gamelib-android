@@ -114,7 +114,7 @@ public class GameView extends View implements Updatable {
 		doDraw(canvas);
 	}
 
-	protected RenderingNode getRenderingContent() {
+	public RenderingNode getRenderingContent() {
 		return renderingNode;
 	}
 
