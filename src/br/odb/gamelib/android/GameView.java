@@ -131,7 +131,6 @@ public class GameView extends View implements Updatable {
 		}
 
 		renderingContext.currentOrigin.addTo(renderingNode.translate);
-
 		gameRenderer.startRendering(renderingNode);
 
 		while (gameRenderer.hasJobs() && ((tn - t0) < this.renderingBudget)) {
@@ -141,15 +140,6 @@ public class GameView extends View implements Updatable {
 
 		gameRenderer.resetRenderingContext();
 		renderingContext.currentOrigin.addTo(renderingNode.translate.negated());
-
-		tn = System.currentTimeMillis();
-		if ((tn - t0) < this.renderingBudget) {
-			try {
-				Thread.sleep(this.renderingBudget - (tn - t0));
-			} catch (InterruptedException e) {
-				e.printStackTrace();
-			}
-		}
 	}
 
 	private void renderDefaultEmptyScreen() {

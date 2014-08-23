@@ -30,8 +30,9 @@ public class AndroidCanvasRenderingContext extends RenderingContext {
 
 	private Canvas canvas;
 	Paint paint;
-
-
+	private HashMap<Gradient, LinearGradient> gradientsCache = new HashMap<Gradient, LinearGradient>();
+	Path path = new Path();
+	
 	public void prepareWithCanvasAndPaint(Canvas canvas, Paint paint) {
 		this.canvas = canvas;
 		this.paint = paint;
@@ -40,13 +41,13 @@ public class AndroidCanvasRenderingContext extends RenderingContext {
 
 	@Override
 	public void fillRect(Color color, Rect rect) {
-		
+
 		android.graphics.Rect androidRect = AndroidUtils.toAndroidRect(rect);
 		androidRect.top += currentOrigin.y;
 		androidRect.bottom += currentOrigin.y;
 		androidRect.left += currentOrigin.x;
 		androidRect.right += currentOrigin.x;
-		
+
 		paint.setStyle(Style.FILL_AND_STROKE);
 		paint.setColor(color.getARGBColor());
 		paint.setAlpha((int) (currentAlpha * 255));
@@ -69,109 +70,127 @@ public class AndroidCanvasRenderingContext extends RenderingContext {
 	@Override
 	public void drawColoredPolygon(ColoredPolygon pol, Rect bounds,
 			String style, HashMap<String, Gradient> gradients) {
-		
+
+		LinearGradient lg = null;
+		int currentColor = 0;
 
 		Vec2 origin = bounds.p0.add(this.currentOrigin);
-		paint.setColor(0xFF0000FF);
-		paint.setAlpha((int) (currentAlpha * 255));
-		paint.setStyle(Paint.Style.FILL_AND_STROKE);
-//		paint.setAntiAlias(true);
 
-		float scale;
+		if (currentAlpha < 1.0f) {
+			paint.setAlpha((int) (currentAlpha * 255));
+		}
+
 		float diffX = 0;
 		float diffY = 0;
 
-		String gradient = null;
 
-		scale = 1;
+		if (pol.xpoints == null || pol.ypoints == null || pol.npoints <= 0) {
 
-		if (pol.xpoints == null || pol.ypoints == null || pol.npoints <= 0)
 			return;
+		}
 
-		Path path = new Path();
-		path.moveTo((origin.x + pol.xpoints[0] ), origin.y
-				+ pol.ypoints[0] );
+		path.reset();
+		
+		path.moveTo((origin.x + pol.xpoints[0]), origin.y + pol.ypoints[0]);
 
 		for (int c = 0; c < pol.npoints; ++c) {
-			
+
 			if (((Vec2) pol.controlPoints.get(c)).isValid()) {
-				
+
 				Vec2 control = (Vec2) pol.controlPoints.get(c);
 
-				path.cubicTo(origin.x + (pol.xpoints[c] * scale) - diffX,
-						origin.y + pol.ypoints[c] * scale - diffY, origin.x
-								+ control.x * scale, origin.y + control.y
-								* scale - diffY, origin.x
-								+ (pol.xpoints[c + 1] * scale) - diffX,
-						origin.y + pol.ypoints[c + 1] * scale - diffY);
+				path.cubicTo(origin.x + (pol.xpoints[c]) - diffX, origin.y
+						+ pol.ypoints[c] - diffY, origin.x + control.x,
+						origin.y + control.y - diffY, origin.x
+								+ (pol.xpoints[c + 1]) - diffX, origin.y
+								+ pol.ypoints[c + 1] - diffY);
 				++c;
-			} else
-				path.lineTo( origin.x + pol.xpoints[c],
-						origin.y + pol.ypoints[c]);
+			} else {
+
+				path.lineTo(origin.x + pol.xpoints[c], origin.y
+						+ pol.ypoints[c]);
+			}
 		}
 
 		path.close();
-		paint.setShader(null);
-		paint.setAlpha(255);
 
-		if (pol.originalStyle != null) {
-			pol.color = SVGUtils.parseColorFromStyle(pol.originalStyle);
-			gradient = SVGUtils.parseGradientFromStyle(pol.originalStyle);
+		if (currentAlpha < 1.0f) {
+			paint.setAlpha(255);
 		}
 
-		if (gradient != null) {
+		if (pol.originalStyle != null) {
 
-			Gradient g0 = gradients.get(gradient);
-//
-//			if (g0.stops == null && g0.link != null) {
-//				g1 = gradients.get(g0.link);
-//			} else {
-//				g1 = g0;
-//			}
-
-			Color color1;
-			Color color2;
-
-			color1 = SVGUtils.parseColorFromStyle(g0.stops[0].style,
-					"stop-color", "stop-opacity");
-			color2 = SVGUtils.parseColorFromStyle(g0.stops[1].style,
-					"stop-color", "stop-opacity");
-
-			if (pol.color != null) {
-			
-				
-				color1.a= 	((int) (
-						(color1.a / 255.0f)					
-						* (pol.color.a / 255.0f) * 255)						
-						);
-				color2.a = ((int) ((color2.a / 255.0f)
-						* (pol.color.a / 255.0f) * 255));
+			if (pol.color == null) {
+				pol.color = SVGUtils.parseColorFromStyle(pol.originalStyle);
 			}
 
-			LinearGradient lg = new LinearGradient(g0.x1 * scale,
-					g0.y1 * scale, g0.x2 * scale, g0.y2 * scale,
-					(int) color1.getARGBColor(), (int) color2.getARGBColor(),
-					Shader.TileMode.CLAMP);
+			if (pol.gradient == null) {
+
+				pol.gradient = SVGUtils
+						.parseGradientFromStyle(pol.originalStyle);
+			}
+		}
+
+		if (pol.gradient != null) {
+
+
+			Gradient g0 = gradients.get(pol.gradient);
+			
+			if ( gradientsCache .containsKey( g0 ) ) {
+				lg = gradientsCache.get( g0 );
+			} else {
+				Color color1;
+				Color color2;
+				
+
+				if (g0.stops[0].color == null) {
+
+					g0.stops[0].color = SVGUtils.parseColorFromStyle(
+							g0.stops[0].style, "stop-color", "stop-opacity");
+				}
+
+				if (g0.stops[1].color == null) {
+
+					g0.stops[1].color = SVGUtils.parseColorFromStyle(
+							g0.stops[1].style, "stop-color", "stop-opacity");
+				}
+
+				color1 = g0.stops[0].color;
+				color2 = g0.stops[1].color;
+
+				if (pol.color != null) {
+
+					color1.a = ((int) ((color1.a / 255.0f) * (pol.color.a / 255.0f) * 255));
+					color2.a = ((int) ((color2.a / 255.0f) * (pol.color.a / 255.0f) * 255));
+				}
+
+				lg = new LinearGradient(g0.x1, g0.y1, g0.x2, g0.y2,
+						(int) color1.getARGBColor(), (int) color2.getARGBColor(),
+						Shader.TileMode.CLAMP);
+				
+				gradientsCache.put( g0, lg );
+			}			
+
 
 			paint.setShader(lg);
 
 		} else if (pol.color != null) {
 
-			paint.setColor((int) pol.color.getARGBColor());
-
-			paint.setAlpha((int) (pol.color.a *  currentAlpha ) );
-//			paint.setAlpha((int) (pol.color.getA()));			
-		} else
+			if (currentColor != pol.color.getARGBColor()) {
+				currentColor = pol.color.getARGBColor();
+				paint.setColor(currentColor);
+				paint.setAlpha((int) (pol.color.a * currentAlpha));
+			}
+		} else {
 			paint.setColor(0xFF000000);
+		}
+		
 
 		canvas.drawPath(path, paint);
-		paint.setAlpha((int) (currentAlpha * 255));
-		
-		//show verteces
-//		for ( int p3 = 0; p3 < pol.npoints; ++p3 ) {
-//			
-//			this.fillRect( new Color( 0,0,0 ), new Rect( pol.xpoints[ p3 ] + bounds.x0 - 5, pol.ypoints[ p3 ] + bounds.y0 - 5, 10, 10 ) );
-//		}
+
+		if (lg != null) {
+			paint.setShader(null);
+		}
 	}
 
 	@Override
@@ -225,17 +244,18 @@ public class AndroidCanvasRenderingContext extends RenderingContext {
 
 		Matrix rotator = new Matrix();
 
-		rotator.postRotate( rotation, image.getWidth() / 2, image.getHeight() / 2 );
-		rotator.postScale( scale.x, scale.y );
-		rotator.postTranslate( p0.x, p0.y );
-		
+		rotator.postRotate(rotation, image.getWidth() / 2,
+				image.getHeight() / 2);
+		rotator.postScale(scale.x, scale.y);
+		rotator.postTranslate(p0.x, p0.y);
+
 		canvas.drawBitmap(ari.bitmap, rotator, paint);
 
 	}
 
 	public void setAntiAlias(boolean b) {
-		if ( paint != null ) {
-			paint.setAntiAlias( b );
-		}		
+		if (paint != null) {
+			paint.setAntiAlias(b);
+		}
 	}
 }
