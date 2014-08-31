@@ -3,7 +3,6 @@
  */
 package br.odb.gamelib.android;
 
-import br.odb.derelict2d.Derelict2DApplication;
 import br.odb.gamerendering.rendering.AssetManager;
 import br.odb.gamerendering.rendering.DisplayList;
 import br.odb.gamerendering.rendering.RenderingNode;
@@ -65,7 +64,6 @@ public class AndroidUtils {
 		SVGRenderingNode node = new SVGRenderingNode(graphic, "graphic_"
 				+ graphicPath);
 
-		gv.setAntiAliasing( false );
 		dl.setItems(new RenderingNode[] { node });
 		gv.setRenderingContent(dl);
 		gv.updater.setRunning( false );
@@ -97,7 +95,6 @@ public class AndroidUtils {
 		SVGRenderingNode node = new SVGRenderingNode(graphic, prefix
 				+ graphicPath);
 
-		gv.setAntiAliasing( false );
 		dl.setItems(new RenderingNode[] { node });
 		gv.setRenderingContent(dl);
 		gv.updater.setRunning( false );
@@ -105,4 +102,14 @@ public class AndroidUtils {
 		
 	}
 
+	public static void initImage(GameView gv, SVGGraphic graphic, String id ) {
+		DisplayList dl = new DisplayList("dl");
+
+		SVGRenderingNode node = new SVGRenderingNode(graphic, id );
+
+		dl.setItems(new RenderingNode[] { node });
+		gv.setRenderingContent(dl);
+		gv.updater.setRunning( false );
+		gv.postInvalidate();		
+	}
 }

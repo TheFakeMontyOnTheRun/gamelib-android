@@ -6,6 +6,7 @@ import android.content.Context;
 import android.graphics.Canvas;
 import android.graphics.Paint;
 import android.util.AttributeSet;
+import android.view.MotionEvent;
 import android.view.View;
 import br.odb.gamerendering.rendering.DisplayList;
 import br.odb.gamerendering.rendering.GameRenderer;
@@ -44,11 +45,19 @@ public class GameView extends View implements Updatable {
 				} catch (InterruptedException e) {
 					e.printStackTrace();
 				}
-				update( latency );
+				update(latency);
 				postInvalidate();
 
 			}
 		}
+	}
+
+	@Override
+	public boolean onTouchEvent(final MotionEvent event) {
+		if (event.getAction() == MotionEvent.ACTION_UP) {
+			return performClick();
+		}
+		return true;
 	}
 
 	private GameRenderer gameRenderer;
@@ -60,10 +69,10 @@ public class GameView extends View implements Updatable {
 	private Thread updateThread;
 	public Updater updater;
 
-	public void update( long ms ) {
-		if ( renderingNode != null ) {
-			
-			renderingNode.update( ms );
+	public void update(long ms) {
+		if (renderingNode != null) {
+
+			renderingNode.update(ms);
 		}
 	}
 
@@ -88,12 +97,12 @@ public class GameView extends View implements Updatable {
 	public void init(Context context) {
 		this.requestFocus();
 		this.setFocusableInTouchMode(true);
-		
-//        if (!isInEditMode()) {
-//            setLayerType(View.LAYER_TYPE_HARDWARE, null);
-//        }
 
-		paint.setAntiAlias( true );
+		// if (!isInEditMode()) {
+		// setLayerType(View.LAYER_TYPE_HARDWARE, null);
+		// }
+
+		paint.setAntiAlias(true);
 		renderingBudget = 100;
 		renderingContext = new AndroidCanvasRenderingContext();
 		gameRenderer = new GameRenderer();
@@ -145,9 +154,8 @@ public class GameView extends View implements Updatable {
 	private void renderDefaultEmptyScreen() {
 		if (defaultRenderingNode == null) {
 
-			defaultRenderingNode = new SolidSquareRenderingNode(
-					new Rect(100, 100, 200, 200), new Color(255, 255,
-							0));
+			defaultRenderingNode = new SolidSquareRenderingNode(new Rect(100,
+					100, 200, 200), new Color(255, 255, 0));
 		}
 		gameRenderer.renderNode(defaultRenderingNode);
 
@@ -181,16 +189,15 @@ public class GameView extends View implements Updatable {
 	}
 
 	public void setAntiAliasing(boolean b) {
-		
 
 		boolean previous;
-		
-		if ( renderingContext.paint != null ) {
-			
+
+		if (renderingContext.paint != null) {
+
 			previous = renderingContext.paint.isAntiAlias();
-			
-			if ( b != previous ) {
-				renderingContext.setAntiAlias( b );
+
+			if (b != previous) {
+				renderingContext.setAntiAlias(b);
 				postInvalidate();
 			}
 		}
