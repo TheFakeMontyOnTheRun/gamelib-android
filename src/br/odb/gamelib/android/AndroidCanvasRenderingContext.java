@@ -258,4 +258,9 @@ public class AndroidCanvasRenderingContext extends RenderingContext {
 			paint.setAntiAlias(b);
 		}
 	}
+
+	@Override
+	public void drawLine(Vec2 p0, Vec2 p1) {
+		canvas.drawLine( p0.x, p0.y, p1.x, p1.y, paint);		
+	}
 }
