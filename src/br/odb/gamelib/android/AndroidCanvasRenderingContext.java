@@ -263,4 +263,11 @@ public class AndroidCanvasRenderingContext extends RenderingContext {
 	public void drawLine(Vec2 p0, Vec2 p1) {
 		canvas.drawLine( p0.x, p0.y, p1.x, p1.y, paint);		
 	}
+
+	@Override
+	public void drawText(Vec2 p0, String text, Color c, int fontSize ) {
+		paint.setColor( c.getARGBColor() );
+		paint.setTextSize( fontSize );
+		canvas.drawText( text, currentOrigin.x,  currentOrigin.y, paint);
+	}
 }
