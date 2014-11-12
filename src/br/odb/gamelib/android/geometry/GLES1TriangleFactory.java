@@ -1,6 +1,7 @@
 package br.odb.gamelib.android.geometry;
  
 import br.odb.libstrip.AbstractTriangleFactory;
+import br.odb.libstrip.IndexedSetFace;
 import br.odb.utils.Color;
 import br.odb.utils.math.Vec3;
 
@@ -47,5 +48,14 @@ public class GLES1TriangleFactory implements AbstractTriangleFactory {
 
 		toReturn.flushToGLES();
 		return toReturn;
+	}
+
+	public GLESIndexedSetFace makeTrigFrom(IndexedSetFace isf) {
+
+		Vec3 v0 = isf.getVertex( 0 );
+		Vec3 v1 = isf.getVertex( 1 );
+		Vec3 v2 = isf.getVertex( 2 );
+		
+		return makeTrig( v0.x, v0.y, v0.z, v1.x, v1.y, v1.z, v2.x, v2.y, v2.z, isf.getColor().getARGBColor(), null );
 	}
 }
