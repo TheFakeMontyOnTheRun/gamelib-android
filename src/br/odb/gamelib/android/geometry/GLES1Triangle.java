@@ -14,7 +14,6 @@ import android.opengl.GLES20;
 import br.odb.libstrip.AbstractTriangle;
 import br.odb.libstrip.GeneralTriangle;
 import br.odb.libstrip.IndexedSetFace;
-import br.odb.libstrip.Material;
 import br.odb.utils.Color;
 import br.odb.utils.math.Vec3;
 /**
@@ -32,22 +31,6 @@ public class GLES1Triangle extends GeneralTriangle implements GLESIndexedSetFace
 	int[] colorBits = new int[ 4 ];
 	private boolean visible = true;
 
-	// ------------------------------------------------------------------------------------------------------------
-	/**
-	 * 
-	 */
-	@Override
-	public void addIndex(int index) {
-	}
-	// ------------------------------------------------------------------------------------------------------------
-	/**
-	 * 
-	 */
-	@Override
-	public void addVertex(Vec3 v) {
-		// TODO Auto-generated method stub
-
-	}
 	// ------------------------------------------------------------------------------------------------------------
 	/**
 	 * 
@@ -157,14 +140,6 @@ public class GLES1Triangle extends GeneralTriangle implements GLESIndexedSetFace
 		return color;
 	}
 	// ------------------------------------------------------------------------------------------------------------
-	/**
-	 * 
-	 */
-	@Override
-	public int getIndex(int d) {
-
-		return d;
-	}
 	// ------------------------------------------------------------------------------------------------------------
 	/**
 	 * 
@@ -202,14 +177,7 @@ public class GLES1Triangle extends GeneralTriangle implements GLESIndexedSetFace
 		return colorData;
 	}
 	// ------------------------------------------------------------------------------------------------------------
-	/**
-	 * 
-	 */
-	@Override
-	public boolean getVisibility() {
 
-		return visible;
-	}
 	// ------------------------------------------------------------------------------------------------------------
 	/**
 	 * 
@@ -268,20 +236,7 @@ public class GLES1Triangle extends GeneralTriangle implements GLESIndexedSetFace
 	 GLES20.glDrawArrays(GLES20.GL_TRIANGLE_STRIP, 0, 3 );
 	 }
 	// ------------------------------------------------------------------------------------------------------------
-	/**
-	 * 
-	 */
-	@Override
-	public void setVisibility(boolean visibility) {
 
-		visible = visibility;
-	}
-	@Override
-	public Material getMaterial() {
-		// TODO Auto-generated method stub
-		return null;
-	}
-	
 	public Vec3 makeNormal() {
 		
 		Vec3 v1;
@@ -306,18 +261,7 @@ public class GLES1Triangle extends GeneralTriangle implements GLESIndexedSetFace
 		
 		flatten( -1.2f );
 	}
-	@Override
-	public void destroy() {
 
-		colorBuffer.clear();
-		colorBuffer = null;
-		vertexBuffer.clear();
-		vertexBuffer = null;
-		color = null;
-		vertices = null;
-		colorBits = null;
-		verticesBits = null;
-	}
 	public void multiplyColor( float factor ) {
 		
 		for ( int c = 0; c < color.length; ++ c )

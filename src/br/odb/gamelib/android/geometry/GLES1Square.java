@@ -16,7 +16,6 @@ import javax.microedition.khronos.opengles.GL10;
 import android.opengl.GLES20;
 import br.odb.libstrip.AbstractSquare;
 import br.odb.libstrip.IndexedSetFace;
-import br.odb.libstrip.Material;
 import br.odb.utils.Color;
 import br.odb.utils.Utils;
 import br.odb.utils.math.Vec3;
@@ -47,15 +46,6 @@ public class GLES1Square implements AbstractSquare, GLESIndexedSetFace {
 		
 	}
 
-	@Override
-	public void addIndex(int index) {
-	}
-
-	@Override
-	public void addVertex(Vec3 v) {
-		// TODO Auto-generated method stub
-
-	}
 
 	// ------------------------------------------------------------------------------------------------------------
 	@Override
@@ -145,11 +135,6 @@ public class GLES1Square implements AbstractSquare, GLESIndexedSetFace {
 	 GLES20.glDrawArrays(GLES20.GL_TRIANGLE_STRIP, 0, 4 );
 	 }
 
-	@Override
-	public int getIndex(int d) {
-
-		return d;
-	}
 
 	/**
 	 * @return the offset
@@ -175,11 +160,6 @@ public class GLES1Square implements AbstractSquare, GLESIndexedSetFace {
 		return vertices;
 	}
 
-	@Override
-	public boolean getVisibility() {
-
-		return visible;
-	}
 
 	@Override
 	public IndexedSetFace makeCopy() {
@@ -246,10 +226,6 @@ public class GLES1Square implements AbstractSquare, GLESIndexedSetFace {
 		this.offset = offset;
 	}
 
-	@Override
-	public void setVisibility(boolean visibility) {
-		visible = visibility;
-	}
 
 	// ------------------------------------------------------------------------------------------------------------
 	@Override
@@ -298,24 +274,5 @@ public class GLES1Square implements AbstractSquare, GLESIndexedSetFace {
 		for ( int c = 0; c < color.length; ++c ) {
 			colorBits[ c ] = Float.floatToRawIntBits( color[ c ] );
 		}
-	}
-
-	@Override
-	public Material getMaterial() {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public void destroy() {
-
-		color = null;
-		colorBuffer.clear();
-		colorBuffer = null;
-		colorBits = null;
-		vertexBuffer.clear();
-		vertexBuffer = null;
-		vertices = null;
-		verticesBits = null;		
 	}
 }

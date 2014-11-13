@@ -129,7 +129,7 @@ public class GLESRenderer implements GLSurfaceView.Renderer {
 	public void onSurfaceCreatedGLES20(EGLConfig config) {
 
 		// Set the background frame color
-		GLES20.glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+		GLES20.glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
 		GLES20.glClearDepthf(1.0f);
 		GLES20.glEnable(GLES10.GL_DEPTH_TEST);
 		GLES20.glDepthFunc(GLES10.GL_LEQUAL);
@@ -164,18 +164,18 @@ public class GLESRenderer implements GLSurfaceView.Renderer {
 	 */
 	private void drawMeshGLES2(Mesh mesh) {
 
-		if (!mesh.isVisible())
+		if (!mesh.visible )
 			return;
 
-		if (mesh.manager != null) {
-			mesh.manager.flush();
-			((GLESVertexArrayManager) mesh.manager).drawGLES2(maPositionHandle,
-					colorHandle);
-		} else {
+//		if (mesh.manager != null) {
+//			mesh.manager.flush();
+//			((GLESVertexArrayManager) mesh.manager).drawGLES2(maPositionHandle,
+//					colorHandle);
+//		} else {
 			for (IndexedSetFace face : mesh.faces) {
 				((GLESIndexedSetFace) face).draw();
 			}
-		}
+//		}
 	}
 
 	// ------------------------------------------------------------------------------------------------------------
