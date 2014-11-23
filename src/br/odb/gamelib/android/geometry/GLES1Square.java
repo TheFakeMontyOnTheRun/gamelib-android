@@ -35,6 +35,7 @@ public class GLES1Square implements AbstractSquare, GLESIndexedSetFace {
 	private boolean visible = true;
 	public int[] colorBits;
 	public int[] verticesBits;
+	private float[] textureCoordinates;
 
 	// ------------------------------------------------------------------------------------------------------------
 	public GLES1Square() {
@@ -124,7 +125,7 @@ public class GLES1Square implements AbstractSquare, GLESIndexedSetFace {
 	}
 
 	
-	 public void drawGLES2( int vertexHandle, int colorHandle ) {
+	 public void drawGLES2( int vertexHandle, int colorHandle, int notused ) {
 	 GLES20.glVertexAttribPointer( vertexHandle, 3, GLES20.GL_FLOAT, false, 0,
 	 vertexBuffer );
 	 GLES20.glEnableVertexAttribArray( vertexHandle );
@@ -274,5 +275,11 @@ public class GLES1Square implements AbstractSquare, GLESIndexedSetFace {
 		for ( int c = 0; c < color.length; ++c ) {
 			colorBits[ c ] = Float.floatToRawIntBits( color[ c ] );
 		}
+	}
+
+
+	@Override
+	public void setTextureCoordenates(float[] fs) {
+		this.textureCoordinates = fs;
 	}
 }

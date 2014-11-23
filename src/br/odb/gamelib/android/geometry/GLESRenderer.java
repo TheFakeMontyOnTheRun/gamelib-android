@@ -10,65 +10,79 @@ import java.util.ArrayList;
 import javax.microedition.khronos.egl.EGLConfig;
 import javax.microedition.khronos.opengles.GL10;
 
+import android.content.Context;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.opengl.GLES10;
 import android.opengl.GLES20;
 import android.opengl.GLSurfaceView;
+import android.opengl.GLUtils;
 import android.opengl.Matrix;
+import android.util.Log;
+import br.odb.leveleditor3d.android.R;
 import br.odb.libstrip.IndexedSetFace;
 import br.odb.libstrip.Mesh;
 import br.odb.utils.math.Vec3;
 
 /*
  * Concerns:
- * - show the world from the chosen actor's view.
+ * - show the world from the camera's view.
  * - do it in the most efficient way
  * - so, work to keep showing stuff efficiently
  * */
 
 public class GLESRenderer implements GLSurfaceView.Renderer {
-	// ////GLES2 stuff/////
 
+	public final Vec3 camera = new Vec3();
+	public float angle;
+	private GLESVertexArrayManager fixedGeometryManager;
+	final GLESVertexArrayManager manager = new GLESVertexArrayManager();
+	final private ArrayList<GLESIndexedSetFace> sceneGeometryToRender;
+	final public ArrayList<GLESIndexedSetFace> fixedScreenShapesToRender;
+	final public ArrayList<GLESIndexedSetFace> screenShapesToRender;
+	final private ArrayList<Mesh> meshes = new ArrayList<Mesh>();
+	private boolean shouldCheckForBailingOut;
+
+	//GLES2 stuff
 	private int mProgram;
 	private int maPositionHandle;
 	private int colorHandle;
+	private String vertexShaderCode;
+	private String fragmentShaderCode;
+	int textureIndex;
+	private int mTextureCoordinateHandle;
+	private int mTextureUniformHandle;
+	private Context context;
 	private int muMVPMatrixHandle;
 	private float[] mMVPMatrix = new float[16];
 	private float[] mMMatrix = new float[16];
 	private float[] mVMatrix = new float[16];
 	private float[] mProjMatrix = new float[16];
 
+	/**
+	 * 
+	 * @param type GL_VERTEX_SHADER or GL_FRAGMENT_SHADER
+	 * @param shaderCode proper code for shader
+	 * @return
+	 */
 	private int loadShader(int type, String shaderCode) {
 
-		// create a vertex shader type (GLES20.GL_VERTEX_SHADER)
-		// or a fragment shader type (GLES20.GL_FRAGMENT_SHADER)
 		int shader = GLES20.glCreateShader(type);
 
-		// add the source code to the shader and compile it
 		GLES20.glShaderSource(shader, shaderCode);
 		GLES20.glCompileShader(shader);
 
 		return shader;
 	}
-
-	// ///////////////////
-	public final Vec3 camera = new Vec3();
-	public float angle;
-
-	private GLESVertexArrayManager fixedGeometryManager;
-
-	final GLESVertexArrayManager manager = new GLESVertexArrayManager();
-	final private ArrayList<GLESIndexedSetFace> sceneGeometryToRender;
-	final public ArrayList<GLESIndexedSetFace> fixedScreenShapesToRender;
-	final public ArrayList<GLESIndexedSetFace> screenShapesToRender;
-	final private ArrayList<Mesh> meshes = new ArrayList<Mesh>();
-
-	private boolean shouldCheckForBailingOut;
-	private String vertexShaderCode;
-	private String fragmentShaderCode;
-
-	// ------------------------------------------------------------------------------------------------------------
+/**
+ * 
+ * @param maxVisiblePolys
+ * @param vertexShader
+ * @param fragmentShader
+ * @param context
+ */
 	public GLESRenderer(int maxVisiblePolys, String vertexShader,
-			String fragmentShader) {
+			String fragmentShader, Context context ) {
 		super();
 
 		this.vertexShaderCode = vertexShader;
@@ -80,30 +94,80 @@ public class GLESRenderer implements GLSurfaceView.Renderer {
 
 		manager.init(maxVisiblePolys);
 		manager.flush();
-
+		this.context = context;
 	}
-
-	// ------------------------------------------------------------------------------------------------------------
-
+	
+	/**
+	 * 
+	 * @param context
+	 * @param resourceId
+	 * @return
+	 */
+	public static int loadTexture(final Context context, final int resourceId)
+	{
+	    final int[] textureHandle = new int[1];
+	 
+	    GLES20.glGenTextures(1, textureHandle, 0);
+	 
+	    if (textureHandle[0] != 0)
+	    {
+	        final BitmapFactory.Options options = new BitmapFactory.Options();
+	        options.inScaled = false;
+	 
+	        final Bitmap bitmap = BitmapFactory.decodeResource(context.getResources(), resourceId, options);
+	 
+	        GLES20.glBindTexture(GLES20.GL_TEXTURE_2D, textureHandle[0]);
+	 
+	        GLES20.glTexParameteri(GLES20.GL_TEXTURE_2D, GLES20.GL_TEXTURE_MIN_FILTER, GLES20.GL_NEAREST);
+	        GLES20.glTexParameteri(GLES20.GL_TEXTURE_2D, GLES20.GL_TEXTURE_MAG_FILTER, GLES20.GL_NEAREST);
+	 
+	        GLUtils.texImage2D(GLES20.GL_TEXTURE_2D, 0, bitmap, 0);
+	 
+	        bitmap.recycle();
+	    }
+	 
+	    if (textureHandle[0] == 0)
+	    {
+	        throw new RuntimeException("Error loading texture.");
+	    }
+	 
+	    return textureHandle[0];
+	}
+/**
+ * 
+ * @param isf
+ */
 	public void addGeometryToScene(GLESIndexedSetFace isf) {
+		isf.setTextureCoordenates( new float[] {
+				0.0f, 0.0f,
+		        0.0f, 1.0f,
+		        1.0f, 0.0f				
+				}
+				
+				);
+		
 		sceneGeometryToRender.add(isf);
 	}
-
+/**
+ * 
+ * @param s
+ */
 	public void addGeometryToScreen(GLESIndexedSetFace s) {
 		screenShapesToRender.add(s);
 
 	}
-
-	// ------------------------------------------------------------------------------------------------------------
-
-	// ------------------------------------------------------------------------------------------------------------
-
-	// ------------------------------------------------------------------------------------------------------------
+/**
+ * 
+ */
 	@Override
 	public void onSurfaceChanged(GL10 gl, int width, int height) {
 		onSurfaceChangedGLES20(width, height);
 	}
-
+/**
+ * 
+ * @param width
+ * @param height
+ */
 	public void onSurfaceChangedGLES20(int width, int height) {
 		GLES20.glViewport(0, 0, width, height);
 
@@ -115,20 +179,26 @@ public class GLESRenderer implements GLSurfaceView.Renderer {
 		xmin = ymin * ratio;
 		xmax = ymax * ratio;
 
-		Matrix.frustumM(mProjMatrix, 0, xmin, xmax, ymin, ymax, 0.1f, 1024.0f);
+		Matrix.frustumM(mProjMatrix, 0, xmin, xmax, ymin, ymax, 0.1f, 10000.0f);
 		muMVPMatrixHandle = GLES20.glGetUniformLocation(mProgram, "uMVPMatrix");
 		Matrix.setLookAtM(mVMatrix, 0, 0, 0, -3, 0f, 0f, 0f, 0f, 1.0f, 0.0f);
 	}
-
-	// ------------------------------------------------------------------------------------------------------------
+/**
+ * 
+ */
 	@Override
 	public void onSurfaceCreated(GL10 gl, EGLConfig config) {
 		onSurfaceCreatedGLES20(config);
 	}
-
+/**
+ * 
+ * @param config
+ */
 	public void onSurfaceCreatedGLES20(EGLConfig config) {
 
-		// Set the background frame color
+
+		textureIndex = loadTexture( context , R.drawable.tex );
+
 		GLES20.glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
 		GLES20.glClearDepthf(1.0f);
 		GLES20.glEnable(GLES10.GL_DEPTH_TEST);
@@ -139,29 +209,37 @@ public class GLESRenderer implements GLSurfaceView.Renderer {
 		int fragmentShader = loadShader(GLES20.GL_FRAGMENT_SHADER,
 				fragmentShaderCode);
 
-		mProgram = GLES20.glCreateProgram(); // create empty OpenGL Program
-		GLES20.glAttachShader(mProgram, vertexShader); // add the vertex shader
-														// to program
-		GLES20.glAttachShader(mProgram, fragmentShader); // add the fragment
-															// shader to program
-		GLES20.glLinkProgram(mProgram); // creates OpenGL program executables
+		mProgram = GLES20.glCreateProgram();
+		GLES20.glAttachShader(mProgram, vertexShader);
+		GLES20.glAttachShader(mProgram, fragmentShader);
+		GLES20.glLinkProgram(mProgram);
 
-		// get handle to the vertex shader's vPosition member
 		maPositionHandle = GLES20.glGetAttribLocation(mProgram, "vPosition");
 		colorHandle = GLES20.glGetAttribLocation(mProgram, "a_color");
-	}
 
-	// -------------------------------------------------------------------------------------------------
+	}
+/**
+ * 
+ */
 	@Override
 	public void onDrawFrame(GL10 gl) {
 		GLES20.glClear(GLES20.GL_COLOR_BUFFER_BIT);
+		mTextureUniformHandle = GLES20.glGetUniformLocation(mProgram, "u_Texture");
+	    mTextureCoordinateHandle = GLES20.glGetAttribLocation(mProgram, "a_TexCoordinate");
+	 
+	    GLES20.glActiveTexture(GLES20.GL_TEXTURE0);
+	 
+	    GLES20.glBindTexture(GLES20.GL_TEXTURE_2D, textureIndex);
+	 
+	    GLES20.glUniform1i(mTextureUniformHandle, 0);		
 		renderSceneGLES20();
+		Log.d( "BZK3", "get error: " + GLES20.glGetError() );
 	}
 
-	/**
-	 * @param gl
-	 * @param mesh
-	 */
+/**
+ * 
+ * @param mesh
+ */
 	private void drawMeshGLES2(Mesh mesh) {
 
 		if (!mesh.visible )
@@ -177,13 +255,17 @@ public class GLESRenderer implements GLSurfaceView.Renderer {
 			}
 //		}
 	}
-
-	// ------------------------------------------------------------------------------------------------------------
+/**
+ * 
+ * @param Angle
+ */
 	public void setAngle(float Angle) {
 		angle = Angle;
 		this.needsToResetView(true);
 	}
-
+/**
+ * 
+ */
 	private void setCamera() {
 		mVMatrix = new float[] { 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0,
 				1, };
@@ -207,20 +289,21 @@ public class GLESRenderer implements GLSurfaceView.Renderer {
 		GLES20.glUniformMatrix4fv(muMVPMatrixHandle, 1, false, mMVPMatrix, 0);
 
 	}
-
+/**
+ * 
+ */
 	private void renderSceneGLES20() {
 
-		// Add program to OpenGL environment
+
 		GLES20.glUseProgram(mProgram);
 
 		GLES20.glEnable(GL10.GL_DEPTH_TEST);
-		// ////////////////////////////
+		
 		if (shouldCheckForBailingOut) {
 
 			return;
 		}
 
-		// ////////////////////////////
 
 		GLES20.glClear(GLES20.GL_DEPTH_BUFFER_BIT);
 
@@ -234,7 +317,7 @@ public class GLESRenderer implements GLSurfaceView.Renderer {
 
 		for (GLESIndexedSetFace face : sceneGeometryToRender) {
 
-			face.drawGLES2(maPositionHandle, colorHandle);
+			face.drawGLES2(maPositionHandle, colorHandle, this.mTextureCoordinateHandle );
 		}
 
 		for (Mesh mesh : meshes) {
@@ -244,17 +327,24 @@ public class GLESRenderer implements GLSurfaceView.Renderer {
 		manager.flush();
 		manager.drawGLES2(maPositionHandle, colorHandle);
 	}
-
+/**
+ * 
+ * @param face
+ */
 	public void addToVA(GLESIndexedSetFace face) {
 		manager.pushIntoFrameAsStatic(face.getVertexData(), face.getColorData());
 	}
-
-	// ------------------------------------------------------------------------------------------------------------a
-
+/**
+ * 
+ * @param fastReset
+ */
 	public synchronized void needsToResetView(boolean fastReset) {
 		shouldCheckForBailingOut = fastReset;
 	}
-
+/**
+ * 
+ * @param graphic
+ */
 	public void addToFixedGeometryToScreen(GLES1Triangle[] graphic) {
 		for (int c = 0; c < graphic.length; ++c) {
 
@@ -263,7 +353,9 @@ public class GLESRenderer implements GLSurfaceView.Renderer {
 			this.fixedScreenShapesToRender.add(graphic[c]);
 		}
 	}
-
+/**
+ * 
+ */
 	public void detach() {
 
 		try {
@@ -282,12 +374,17 @@ public class GLESRenderer implements GLSurfaceView.Renderer {
 		meshes.clear();
 		fixedGeometryManager = null;
 	}
-
+/**
+ * 
+ */
 	public void clearScreenGeometry() {
 		screenShapesToRender.clear();
 		manager.clear();
 	}
-
+/**
+ * 
+ * @param graphic
+ */
 	public void addToMovingGeometryToScreen(GLES1Triangle[] graphic) {
 
 		for (int c = 0; c < graphic.length; ++c) {

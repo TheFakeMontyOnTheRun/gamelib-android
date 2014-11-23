@@ -15,7 +15,9 @@ public interface GLESIndexedSetFace extends IndexedSetFace {
 
 	public void draw();
 
-	public void drawGLES2(int positionHandle, int colorHandle);
+	public void drawGLES2(int positionHandle, int colorHandle, int textureHandle );
+
+	public void setTextureCoordenates(float[] fs);
 
 	
 }
