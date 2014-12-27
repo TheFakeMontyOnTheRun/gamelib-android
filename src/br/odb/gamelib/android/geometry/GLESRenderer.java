@@ -19,7 +19,6 @@ import android.opengl.GLSurfaceView;
 import android.opengl.GLUtils;
 import android.opengl.Matrix;
 import android.util.Log;
-import br.odb.leveleditor3d.android.R;
 import br.odb.libstrip.IndexedSetFace;
 import br.odb.libstrip.Mesh;
 import br.odb.utils.math.Vec3;
@@ -197,7 +196,7 @@ public class GLESRenderer implements GLSurfaceView.Renderer {
 	public void onSurfaceCreatedGLES20(EGLConfig config) {
 
 
-		textureIndex = loadTexture( context , R.drawable.tex );
+//		textureIndex = loadTexture( context , R.drawable.tex );
 
 		GLES20.glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
 		GLES20.glClearDepthf(1.0f);
