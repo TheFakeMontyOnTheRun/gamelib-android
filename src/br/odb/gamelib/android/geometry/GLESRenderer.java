@@ -19,6 +19,7 @@ import android.opengl.GLSurfaceView;
 import android.opengl.GLUtils;
 import android.opengl.Matrix;
 import android.util.Log;
+import br.odb.leveleditor3d.android.R;
 import br.odb.libstrip.IndexedSetFace;
 import br.odb.libstrip.Mesh;
 import br.odb.utils.math.Vec3;
@@ -48,9 +49,9 @@ public class GLESRenderer implements GLSurfaceView.Renderer {
 	private int colorHandle;
 	private String vertexShaderCode;
 	private String fragmentShaderCode;
-	int textureIndex;
-	private int mTextureCoordinateHandle;
-	private int mTextureUniformHandle;
+//	int textureIndex;
+	private int mTextureCoordinateHandle = -1;
+	private int mTextureUniformHandle = -1;
 	private Context context;
 	private int muMVPMatrixHandle;
 	private float[] mMVPMatrix = new float[16];
@@ -137,13 +138,13 @@ public class GLESRenderer implements GLSurfaceView.Renderer {
  * @param isf
  */
 	public void addGeometryToScene(GLESIndexedSetFace isf) {
-		isf.setTextureCoordenates( new float[] {
-				0.0f, 0.0f,
-		        0.0f, 1.0f,
-		        1.0f, 0.0f				
-				}
-				
-				);
+//		isf.setTextureCoordenates( new float[] {
+//				0.0f, 0.0f,
+//		        0.0f, 1.0f,
+//		        1.0f, 0.0f				
+//				}
+//				
+//				);
 		
 		sceneGeometryToRender.add(isf);
 	}
@@ -223,16 +224,14 @@ public class GLESRenderer implements GLSurfaceView.Renderer {
 	@Override
 	public void onDrawFrame(GL10 gl) {
 		GLES20.glClear(GLES20.GL_COLOR_BUFFER_BIT);
-		mTextureUniformHandle = GLES20.glGetUniformLocation(mProgram, "u_Texture");
-	    mTextureCoordinateHandle = GLES20.glGetAttribLocation(mProgram, "a_TexCoordinate");
+//		mTextureUniformHandle = GLES20.glGetUniformLocation(mProgram, "u_Texture");
+//	    mTextureCoordinateHandle = GLES20.glGetAttribLocation(mProgram, "a_TexCoordinate");
+//	 
+//	    GLES20.glActiveTexture(GLES20.GL_TEXTURE0);
 	 
-	    GLES20.glActiveTexture(GLES20.GL_TEXTURE0);
-	 
-	    GLES20.glBindTexture(GLES20.GL_TEXTURE_2D, textureIndex);
-	 
-	    GLES20.glUniform1i(mTextureUniformHandle, 0);		
+//	    GLES20.glBindTexture(GLES20.GL_TEXTURE_2D, textureIndex);
+//	    GLES20.glUniform1i(mTextureUniformHandle, 0);		
 		renderSceneGLES20();
-		Log.d( "BZK3", "get error: " + GLES20.glGetError() );
 	}
 
 /**
@@ -299,7 +298,6 @@ public class GLESRenderer implements GLSurfaceView.Renderer {
 		GLES20.glEnable(GL10.GL_DEPTH_TEST);
 		
 		if (shouldCheckForBailingOut) {
-
 			return;
 		}
 
@@ -309,13 +307,11 @@ public class GLESRenderer implements GLSurfaceView.Renderer {
 		setCamera();
 
 		if (fixedGeometryManager != null) {
-
 			fixedGeometryManager.flush();
 			fixedGeometryManager.drawGLES2(maPositionHandle, colorHandle);
 		}
 
 		for (GLESIndexedSetFace face : sceneGeometryToRender) {
-
 			face.drawGLES2(maPositionHandle, colorHandle, this.mTextureCoordinateHandle );
 		}
 

@@ -246,15 +246,15 @@ public class GLES1Triangle extends GeneralTriangle implements
 				colorBuffer);
 		GLES20.glEnableVertexAttribArray(colorHandle);
 
-//		if (textureHandle != -1) {
+		if (textureHandle != -1) {
 			textureBuffer.position(0);
 			GLES20.glVertexAttribPointer(textureHandle, 2, GLES20.GL_FLOAT,
 					false, 0, textureBuffer);
 
 			GLES20.glEnableVertexAttribArray(textureHandle);
-//		}
+		}
 
-		GLES20.glDrawArrays(GLES20.GL_TRIANGLE_STRIP, 0, 3);
+		GLES20.glDrawArrays(GLES20.GL_TRIANGLES, 0, 3);
 	}
 
 	// ------------------------------------------------------------------------------------------------------------
