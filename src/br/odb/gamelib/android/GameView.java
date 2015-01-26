@@ -107,8 +107,13 @@ public class GameView extends View implements Updatable {
 		renderingContext = new AndroidCanvasRenderingContext();
 		gameRenderer = new GameRenderer();
 		gameRenderer.setCurrentRenderingContext(renderingContext);
-		defaultRenderingNode = new SolidSquareRenderingNode(new Rect(10, 10,
-				100, 100), new Color(255, 0, 0));
+		
+		DisplayList dl = new DisplayList( "dl" );
+		dl.setItems( new RenderingNode[] { new SolidSquareRenderingNode(new Rect(10, 10, 100, 100), new Color(255, 0, 0)),
+                new SolidSquareRenderingNode(new Rect(110, 10, 100, 100), new Color(0, 255, 0)),
+                new SolidSquareRenderingNode(new Rect(210, 10, 100, 100), new Color(0, 0, 255))} );
+        defaultRenderingNode = dl;
+
 
 		updater = new Updater(this);
 		updater.setRunning(true);
